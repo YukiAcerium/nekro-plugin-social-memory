@@ -102,12 +102,14 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from nekro_agent.api import core, i18n, schemas
+from nekro_agent.api.message import ChatMessage
 from nekro_agent.api.plugin import (
     ConfigBase,
     ExtraField,
     NekroPlugin,
     SandboxMethodType,
 )
+from nekro_agent.api.signal import MsgSignal
 
 plugin = NekroPlugin(
     name="社交记忆系统",
@@ -918,12 +920,12 @@ EXTRACT_PATTERNS = {
 @plugin.mount_on_user_message()
 async def auto_extract(
     _ctx: schemas.AgentCtx,
-    message: schemas.ChatMessage,
-) -> schemas.MsgSignal:
+    message: ChatMessage,
+) -> MsgSignal:
     """从用户消息中自动提取记忆"""
     content = message.content_text
     if not content:
-        return schemas.MsgSignal.CONTINUE
+        return MsgSignal.CONTINUE
 
     import re
     for mem_type, patterns in EXTRACT_PATTERNS.items():
@@ -939,7 +941,7 @@ async def auto_extract(
                 )
                 break
 
-    return schemas.MsgSignal.CONTINUE
+    return MsgSignal.CONTINUE
 
 
 # ============================================================================
