@@ -1,5 +1,5 @@
 #!/bin/bash
-# pre-push-check.sh - 插件推送前检查脚本
+# pre-push-check.sh - 插件推送前检查 + 自动修复脚本
 
 set -e
 
@@ -10,10 +10,24 @@ echo "✅ 语法检查..."
 python -m py_compile plugin.py
 echo "   语法 OK"
 
-# 2. ruff 检查
+# 2. ruff 检查 + 自动修复
 if command -v ruff &> /dev/null; then
     echo "✅ Ruff 检查..."
-    ruff check plugin.py
+    if ! ruff check plugin.py; then
+        echo "   ⚠️ 发现问题，尝试自动修复..."
+        ruff check --fix plugin.py
+        echo "   🔧 已自动修复"
+
+        # 如果有更改，重新检查
+        if ruff check plugin.py; then
+            echo "   ✅ 修复后检查通过"
+        else
+            echo "   ❌ 无法自动修复，请手动处理"
+            exit 1
+        fi
+    else
+        echo "   Ruff 检查通过"
+    fi
 else
     echo "⚠️  ruff 未安装，跳过"
 fi

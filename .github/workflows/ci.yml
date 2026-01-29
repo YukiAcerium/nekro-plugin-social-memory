@@ -7,17 +7,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
           pip install ruff
-      
-      - name: Run ruff
+
+      - name: Run ruff check
+        id: ruff_check
+        run: |
+          if ! ruff check plugin.py; then
+            echo "ruff_failed=true" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: Auto-fix ruff issues
+        if: env.ruff_failed == 'true'
+        run: |
+          ruff check --fix plugin.py
+          echo "🔧 自动修复 ruff 问题..."
+          git config user.email "yuki-bot@nekro.ai"
+          git config user.name "Yuki Bot"
+          git add plugin.py
+          git commit -m "🤖 Auto-fix ruff issues" || echo "无需修复"
+          git push || echo "无需推送"
+
+      - name: Retry ruff check after fix
+        if: env.ruff_failed == 'true'
         run: |
           ruff check plugin.py
 
@@ -25,20 +47,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
           pip install pyright
-      
-      - name: Install nekro-agent for type checking
-        run: |
-          pip install -e /path/to/nekro-agent
-      
+
       - name: Run pyright
         run: |
           pyright plugin.py --pythonversion 3.11
@@ -47,16 +65,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
           pip install pydantic
-      
+
       - name: Test import
         run: |
           python -c "from plugin import plugin; print('Import OK')"
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, import-test]
+    if: failure()
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "🔴 CI 失败通知"
+          echo "Job: ${{ github.job }}"
+          echo "Repo: ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
+          # 邮件通知由 GitHub Actions 原生支持
+          # 在 GitHub repo settings > Notifications > Email 中配置
