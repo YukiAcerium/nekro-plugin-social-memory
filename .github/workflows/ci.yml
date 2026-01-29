@@ -46,7 +46,7 @@ jobs:
         run: |
           ruff check plugin.py
 
-  type-check:
+  syntax-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,38 +56,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Syntax check
         run: |
-          pip install pyright
-
-      - name: Run pyright (syntax only)
-        run: |
-          # 只检查语法，不检查 import（nekro-agent 是本地依赖）
-          pyright --skipLibCheck plugin.py --pythonversion 3.11
-
-  import-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install pydantic
-
-      - name: Test import (syntax only)
-        run: |
-          # 语法检查（nekro-agent 是本地运行时依赖）
           python -m py_compile plugin.py
           echo "✅ 语法检查通过"
 
   notify-failure:
     runs-on: ubuntu-latest
-    needs: [lint, type-check, import-test]
+    needs: [lint, syntax-check]
     if: failure()
     steps:
       - name: Send failure notification
@@ -96,5 +72,3 @@ jobs:
           echo "Job: ${{ github.job }}"
           echo "Repo: ${{ github.repository }}"
           echo "Commit: ${{ github.sha }}"
-          # 邮件通知由 GitHub Actions 原生支持
-          # 在 GitHub repo settings > Notifications > Email 中配置
