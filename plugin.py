@@ -750,7 +750,7 @@ async def record_user_memory(
 async def query_user_memory(
     _ctx: schemas.AgentCtx,
     user_id: str,
-    memory_types: Optional[List[str]] = = None,
+    memory_types: Optional[List[str]] = None,
     min_importance: int = 0,
     limit: int = 20,
 ) -> list:
