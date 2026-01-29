@@ -1,0 +1,62 @@
+name: Plugin CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          pip install ruff
+      
+      - name: Run ruff
+        run: |
+          ruff check plugin.py
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          pip install pyright
+      
+      - name: Install nekro-agent for type checking
+        run: |
+          pip install -e /path/to/nekro-agent
+      
+      - name: Run pyright
+        run: |
+          pyright plugin.py --pythonversion 3.11
+
+  import-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          pip install pydantic
+      
+      - name: Test import
+        run: |
+          python -c "from plugin import plugin; print('Import OK')"
