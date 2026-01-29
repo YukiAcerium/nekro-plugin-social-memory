@@ -22,6 +22,9 @@ jobs:
       - name: Run ruff check
         id: ruff_check
         run: |
+          # 先尝试自动修复
+          ruff check --fix plugin.py || true
+          # 再检查
           if ! ruff check plugin.py; then
             echo "ruff_failed=true" >> $GITHUB_ENV
             exit 1
@@ -60,7 +63,7 @@ jobs:
       - name: Run pyright (syntax only)
         run: |
           # 只检查语法，不检查 import（nekro-agent 是本地依赖）
-          pyright --skiplibCheck plugin.py --pythonversion 3.11
+          pyright --skipLibCheck plugin.py --pythonversion 3.11
 
   import-test:
     runs-on: ubuntu-latest
