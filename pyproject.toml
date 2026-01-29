@@ -1,0 +1,73 @@
+[project]
+name = "nekro-plugin-social-memory"
+version = "0.1.0"
+description = "整合用户好感度追踪和个性化记忆管理的社交记忆系统"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Yuki", email = "yukiacerium@gmail.com"}
+]
+keywords = [
+    "nekro-agent",
+    "social-memory",
+    "affection",
+    "user-memory",
+    "relationship"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "black>=24.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/YukiAcerium/nekro-plugin-social-memory"
+Repository = "https://github.com/YukiAcerium/nekro-plugin-social-memory"
+Issues = "https://github.com/YukiAcerium/nekro-plugin-social-memory/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatchling.build]
+include = [
+    "/nekro_plugin_social_memory",
+    "/__init__.py",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "SIM"]
+ignore = ["B008", "C901", "E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
