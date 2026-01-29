@@ -1,6 +1,3 @@
-import sys
-from importlib.metadata import version
-
-__version__ = version("nekro-plugin-social-memory")
+from .plugin import plugin
 
 __all__ = ["plugin"]
