@@ -465,8 +465,14 @@ async def save_social_data(user_id: str, data: SocialData) -> None:
 
 @plugin.mount_prompt_inject_method("social_memory_prompt_inject")
 async def social_memory_prompt_inject(_ctx: schemas.AgentCtx) -> str:
-    """社交记忆提示注入"""
-    user_id = _ctx.from_user_id
+    """社交记忆提示注入
+    
+    注意：对于提示注入方法，我们使用 chat_key 作为用户标识。
+    对于私聊，chat_key 包含用户信息；对于群聊，会返回当前频道的整体状态。
+    如果需要针对特定用户，请使用沙盒方法。
+    """
+    # 使用 chat_key 作为用户标识
+    user_id = _ctx.chat_key
     social_data = await get_social_data(user_id)
 
     lines = ["## 社交记忆 (Social Memory)"]
@@ -927,6 +933,11 @@ async def auto_extract(
     if not content:
         return MsgSignal.CONTINUE
 
+    # 使用 message.sender_id 作为用户标识
+    user_id = message.sender_id
+    if not user_id:
+        return MsgSignal.CONTINUE
+
     import re
     for mem_type, patterns in EXTRACT_PATTERNS.items():
         for pattern in patterns:
@@ -934,7 +945,7 @@ async def auto_extract(
                 default_importance = {"personal_info": 10, "commitment": 7, "preference": 6, "interest": 5, "habit": 4}.get(mem_type, 5)
                 await record_user_memory(
                     _ctx=_ctx,
-                    user_id=_ctx.from_user_id,
+                    user_id=user_id,
                     memory_type=mem_type,
                     content=content[:200],
                     importance=default_importance - 2,
