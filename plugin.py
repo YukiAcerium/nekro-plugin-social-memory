@@ -768,8 +768,6 @@ async def query_user_memory(
 
     results = []
     for mem in social_data.memories.values():
-        if mem.user_id != user_id:
-            continue
         if mem.expires_at < now:
             continue
         if memory_types and mem.memory_type not in memory_types:
@@ -810,7 +808,7 @@ async def search_user_memory(
     results = []
 
     for mem in social_data.memories.values():
-        if mem.user_id != user_id or mem.expires_at < now:
+        if mem.expires_at < now:
             continue
         if memory_types and mem.memory_type not in memory_types:
             continue
