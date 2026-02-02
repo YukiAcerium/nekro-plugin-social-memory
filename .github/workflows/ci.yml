@@ -61,9 +61,33 @@ jobs:
           python -m py_compile plugin.py
           echo "✅ 语法检查通过"
 
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install basedpyright
+        run: |
+          pip install basedpyright
+
+      - name: Install nekro-agent (>=2.2.0)
+        run: |
+          pip install "nekro-agent>=2.2.0"
+
+      - name: Run basedpyright type check
+        run: |
+          basedpyright --version
+          basedpyright plugin.py
+
   notify-failure:
     runs-on: ubuntu-latest
-    needs: [lint, syntax-check]
+    needs: [lint, syntax-check, type-check]
     if: failure()
     steps:
       - name: Send failure notification
