@@ -466,7 +466,7 @@ async def save_social_data(user_id: str, data: SocialData) -> None:
 @plugin.mount_prompt_inject_method("social_memory_prompt_inject")
 async def social_memory_prompt_inject(_ctx: schemas.AgentCtx) -> str:
     """社交记忆提示注入
-    
+
     注意：对于提示注入方法，我们使用 chat_key 作为用户标识。
     对于私聊，chat_key 包含用户信息；对于群聊，会返回当前频道的整体状态。
     如果需要针对特定用户，请使用沙盒方法。
